@@ -1,5 +1,5 @@
 idf_component_register(
-    SRC_DIRS "src/TMC2209"
-    INCLUDE_DIRS "src"
-    REQUIRES arduino-esp32
+    SRCS src/tmc2209.cpp
+    INCLUDE_DIRS include
+    REQUIRES esp_driver_gpio esp_timer esp_driver_uart
 )
