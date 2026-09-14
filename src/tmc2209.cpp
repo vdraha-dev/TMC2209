@@ -9,6 +9,10 @@
 
 
 namespace hardware {
+
+static constexpr long map(long x, long in_min, long in_max, long out_min, long out_max) {
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
   
 
 TMC2209::TMC2209() {
@@ -554,16 +558,22 @@ int TMC2209::serialAvailable() {
 
 size_t TMC2209::serialWrite(uint8_t c) {
 	if (m_transport != nullptr) {
-		return m_transport->write(c);
+		return m_transport->write(std::span<const uint8_t>(&c, 1));
 	}
   	return 0;
 }
 
 int TMC2209::serialRead() {
 	if (m_transport != nullptr) {
-		return m_transport->read();
+		uint8_t byte = 0;
+		std::span<uint8_t> span{&byte, 1};
+		size_t n = m_transport->read(span, 100);
+		// return m_transport->read();
+		if (n > 0) {
+			return byte;
+		}
 	}
-  return 0;
+  	return -1;
 }
 
 void TMC2209::serialFlush() {
@@ -700,7 +710,7 @@ void TMC2209::sendDatagramBidirectional(Datagram & datagram, uint8_t datagram_si
 		(serialAvailable() < datagram_size) and
 		(echo_delay < ECHO_DELAY_MAX_MICROSECONDS)
 	) {
-		delayMicroseconds(ECHO_DELAY_INC_MICROSECONDS);
+		esp_rom_delay_us(ECHO_DELAY_INC_MICROSECONDS);
 		echo_delay += ECHO_DELAY_INC_MICROSECONDS;
 	}
 
@@ -745,7 +755,8 @@ uint32_t TMC2209::read(uint8_t register_address)
 			(serialAvailable() < WRITE_READ_REPLY_DATAGRAM_SIZE) and
 			(reply_delay < REPLY_DELAY_MAX_MICROSECONDS)
 		) {
-			delayMicroseconds(REPLY_DELAY_INC_MICROSECONDS);
+			// delayMicroseconds(REPLY_DELAY_INC_MICROSECONDS);
+			esp_rom_delay_us(REPLY_DELAY_INC_MICROSECONDS);
 			reply_delay += REPLY_DELAY_INC_MICROSECONDS;
 		}
 
@@ -767,7 +778,8 @@ uint32_t TMC2209::read(uint8_t register_address)
 			return reverseData(read_reply_datagram.data);
 		}
 
-    	delay(READ_RETRY_DELAY_MS);
+    	// delay(READ_RETRY_DELAY_MS);
+		vTaskDelay(pdMS_TO_TICKS(READ_RETRY_DELAY_MS));
   	}
 
   	return 0;

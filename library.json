@@ -1,0 +1,11 @@
+{
+    "name": "tmc2209",
+    "version": "10.1.1",
+    "description": "The TMC2209 is an ultra-silent motor driver IC for two phase stepper motors with both UART serial and step and direction interfaces.",
+    "frameworks": ["espidf"],
+    "platforms": ["espressif32"],
+    "build": {
+        "includeDir": "include",
+        "srcDir": "src"
+    }
+}
