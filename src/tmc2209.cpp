@@ -551,7 +551,7 @@ void TMC2209::initialize(SerialAddress serial_address) {
 
 int TMC2209::serialAvailable() {
 	if (m_transport != nullptr) {
-		return m_transport->available();
+		// return m_transport->available();
 	}
   	return 0;
 }
@@ -578,7 +578,7 @@ int TMC2209::serialRead() {
 
 void TMC2209::serialFlush() {
 	if (m_transport != nullptr) {
-		m_transport->wait_tx_done();
+		// m_transport->wait_tx_done();
 	}
 }
 
